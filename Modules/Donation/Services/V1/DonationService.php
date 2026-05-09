@@ -32,12 +32,12 @@ class DonationService extends BaseService implements DonationServiceInterface
 
         $donation = null;
 
-        DB::transaction(function () use (&$donation, $modelId, $data, $items) {
+        DB::transaction(function () use (&$donation, $modelId, $DTO, $items) {
 
             // =========================
             // Update donation
             // =========================
-            $donation = parent::update($modelId, $data);
+            $donation = parent::update($modelId, $DTO);
 
             $itemIds = collect($items)->pluck('id')->filter()->values();
 

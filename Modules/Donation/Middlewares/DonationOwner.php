@@ -26,8 +26,8 @@ class DonationOwner
         }
 
         $allowed = match ($scope) {
-            'donation_owner:donation_item' => $this->checkDonationItem($request, $user),
-            'donation_owner:donation' => $this->checkDonation($request, $user),
+            'donation_item' => $this->checkDonationItem($request, $user),
+            'donation' => $this->checkDonation($request, $user),
             default => false,
         };
 
@@ -75,15 +75,20 @@ class DonationOwner
         if (!$branch) {
             $donationId = $request->route('modelId');
 
-            $donation = $donationId
-                ? Donation::find($donationId)
-                : null;
+            if($donationId) {
+                $donation = $donationId
+                    ? Donation::find($donationId)
+                    : null;
 
-            if (!$donation) {
-                return false;
+                if (!$donation) {
+                    return false;
+                }
+
+                $branch = $donation->senderBranch;
+
+            } else {
+                return $donation?->sender_user_id === $user->id;
             }
-
-            $branch = $donation->senderBranch;
         }
 
         if (!$branch) {
@@ -92,6 +97,6 @@ class DonationOwner
 
         $donation = $branch->donation;
 
-        return $donation?->sender_user_id === $user->id || $branch->isEmployee($user->id);
+        return $branch->isEmployee($user);
     }
 }

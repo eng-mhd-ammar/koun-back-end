@@ -18,22 +18,22 @@ class CreateDonationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'sender_branch_id' => ['string', new NotSoftDeleted(Branch::class)],
+            'sender_branch_id' => ['nullable', 'string', new NotSoftDeleted(Branch::class)],
             'sender_user_id' => ['required', 'string', new NotSoftDeleted(User::class), new ProhibitedUnlessHasRole(['admin'], auth()->id()), new IsDonor()],
 
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:255'],
-            'status' => ['required', 'numeric', new EnumRule(DonationStatus::class), 'default:' . DonationStatus::PENDING->value, new ProhibitedUnlessHasRole(['admin', DonationStatus::PENDING->value])],
+            'status' => ['numeric', new EnumRule(DonationStatus::class), 'default:' . DonationStatus::PENDING->value, new ProhibitedUnlessHasRole(['admin'], DonationStatus::PENDING->value)],
             'sent_at' => ['nullable', 'date'],
             'notes' => ['nullable', 'string'],
 
             'items' => ['required', 'array', 'min:1'],
-            'items.unit_id' => ['required', 'string', new NotSoftDeleted(Unit::class)],
-            'items.donation_type_id' => ['required', 'string', new NotSoftDeleted(DonationType::class)],
-            'items.name' => ['required', 'string', 'max:255'],
-            'items.description' => ['string'],
-            'items.quantity' => ['required', 'numeric', 'greater_than:0'],
-            'items.notes' => ['required', 'string'],
+            'items.*.unit_id' => ['required', 'string', new NotSoftDeleted(Unit::class)],
+            'items.*.donation_type_id' => ['required', 'string', new NotSoftDeleted(DonationType::class)],
+            'items.*.name' => ['required', 'string', 'max:255'],
+            'items.*.description' => ['nullable', 'string'],
+            'items.*.quantity' => ['required', 'numeric', 'gt:0'],
+            'items.*.notes' => ['nullable', 'string'],
         ];
     }
 }

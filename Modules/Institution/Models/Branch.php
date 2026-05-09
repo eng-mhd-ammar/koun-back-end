@@ -4,6 +4,7 @@ namespace Modules\Institution\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -155,13 +156,11 @@ class Branch extends Model
 
     public function isEmployee($user): bool
     {
-        return $this->employees
-            ->contains('id', $user->id);
+        return $this->employees->contains('id', $user?->id);
     }
 
     public function isAdmin($user): bool
     {
-        return $this->admins
-            ->contains('id', $user->id);
+        return $this->admins->contains('id', $user?->id);
     }
 }

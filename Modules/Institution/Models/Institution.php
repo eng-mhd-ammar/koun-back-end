@@ -147,13 +147,11 @@ class Institution extends Model
 
     public function isEmployee($user): bool
     {
-        return $this->employees
-            ->contains('id', $user->id);
+        return $this->employees->contains('id', $user?->id);
     }
 
     public function isAdmin($user): bool
     {
-        return $this->admins
-            ->contains('id', $user->id);
+        return $this->admins->contains('id', $user?->id);
     }
 }
