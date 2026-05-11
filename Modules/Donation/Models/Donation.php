@@ -80,8 +80,8 @@ class Donation extends Model
         return $this->hasMany(DonationItem::class, 'donation_id', 'id');
     }
 
-    public function donationRequests(): HasMany
-    {
-        return $this->hasMany(DonationRequest::class, 'donation_id', 'id');
-    }
+    // public function donationRequests(): HasMany
+    // {
+    //     return $this->hasMany(DonationRequest::class, 'donation_id', 'id');
+    // }
 }

@@ -20,5 +20,5 @@ interface DonationTypeRepositoryInterface
     public function allowedIncludes(): array;
     public function allowedFields(): array;
     public function ForceDelete(string $modelId);
-    public function restore($modelId);
+    public function restore(string $modelId);
 }

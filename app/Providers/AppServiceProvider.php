@@ -9,8 +9,8 @@ use Modules\Core\Rules\DefaultValue;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Modules\Address\Providers\Address\AddressServiceProvider;
-use Modules\Delivery\Providers\Delivery\DeliveryServiceProvider;
 use Modules\Donation\Providers\Donation\DonationServiceProvider;
+use Modules\DonationRequest\Providers\DonationRequest\DonationRequestServiceProvider;
 use Modules\Institution\Providers\Institution\InstitutionServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->register(InstitutionServiceProvider::class);
         $this->app->register(AddressServiceProvider::class);
         $this->app->register(DonationServiceProvider::class);
-        $this->app->register(DeliveryServiceProvider::class);
+        $this->app->register(DonationRequestServiceProvider::class);
     }
 
     /**

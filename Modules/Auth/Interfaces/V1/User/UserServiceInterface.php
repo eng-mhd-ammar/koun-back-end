@@ -12,5 +12,5 @@ interface UserServiceInterface
     public function update(string $modelId, UserDTO $DTO);
     public function delete(string $modelId);
     public function ForceDelete(string $modelId);
-    public function restore($modelId);
+    public function restore(string $modelId);
 }

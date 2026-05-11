@@ -25,9 +25,7 @@ class DonationResource extends JsonResource
             'notes' => $this->notes,
 
             'user_user' => new UserResource($this->whenLoaded('userUser')),
-
             'user_branch' => new BranchResource($this->whenLoaded('userBranch')),
-
             'donation_items' => DonationResource::collection($this->whenLoaded('donationItems')),
         ];
     }
