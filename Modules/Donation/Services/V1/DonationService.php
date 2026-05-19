@@ -90,7 +90,7 @@ class DonationService extends BaseService implements DonationServiceInterface
             // =========================
             DonationItem::where('donation_id', $donation->id)
                 ->whereNotIn('id', $itemIds)
-                ->delete();
+                ->ForceDelete();
 
             // =========================
             // Bulk insert

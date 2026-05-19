@@ -2,6 +2,7 @@
 
 namespace Modules\DonationRequest\Services\V1;
 
+use DB;
 use Modules\DonationRequest\Interfaces\V1\DonationRequest\DonationRequestRepositoryInterface;
 use Modules\DonationRequest\Interfaces\V1\DonationRequest\DonationRequestServiceInterface;
 use Modules\Core\Services\BaseService;
@@ -18,7 +19,7 @@ class DonationRequestService extends BaseService implements DonationRequestServi
     public function create($DTO)
     {
         $donationRequest = parent::create($DTO);
-        $donationRequest->donationItems()->createMany($DTO->items);
+        $donationRequest->donationRequestItems()->createMany($DTO->items);
         return $donationRequest;
     }
 
@@ -84,7 +85,7 @@ class DonationRequestService extends BaseService implements DonationRequestServi
             // =========================
             DonationRequestItem::where('donation_request_id', $donationRequest->id)
                 ->whereNotIn('id', $itemIds)
-                ->delete();
+                ->ForceDelete();
 
             // =========================
             // Bulk insert

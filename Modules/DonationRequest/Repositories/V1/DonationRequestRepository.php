@@ -24,7 +24,7 @@ class DonationRequestRepository extends BaseRepository implements DonationReques
     public function allowedIncludes(): array
     {
         return [
-            AllowedInclude::relationship('receiver_branch', 'receiverBranch'),
+            AllowedInclude::relationship('receiver_branch.institution.owner', 'receiverBranch.institution.owner'),
             AllowedInclude::relationship('receiver_user', 'receiverUser'),
         ];
     }

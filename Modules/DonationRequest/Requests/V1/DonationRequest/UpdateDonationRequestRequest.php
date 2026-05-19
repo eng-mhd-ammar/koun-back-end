@@ -12,6 +12,7 @@ use Modules\DonationRequest\Enums\DonationRequestStatus;
 use Modules\DonationRequest\Models\DonationRequest;
 use Modules\DonationRequest\Models\DonationRequestItem;
 use Modules\DonationRequest\Rules\IsCharity;
+use Modules\DonationRequest\Rules\LessThanRequested;
 use Modules\Institution\Models\Branch;
 
 class UpdateDonationRequestRequest extends FormRequest
@@ -26,10 +27,9 @@ class UpdateDonationRequestRequest extends FormRequest
 
             'items' => ['array', 'min:1'],
             'items.*.id' => ['string', new NotSoftDeleted(DonationRequestItem::class)],
-            'items.*.donation_request_id' => ['required', new NotSoftDeleted(DonationRequest::class)],
             'items.*.donation_item_id' => ['required', new NotSoftDeleted(DonationItem::class)],
-            'items.*.requested_quantity' => ['required', 'numeric', 'min:1', 'default:1'],
-            'items.*.approved_quantity' => ['nullable', 'numeric', 'min:0', new ProhibitedUnlessHasRole(['admin'])],
+            'items.*.requested_quantity' => ['required', 'numeric', 'min:1', 'default:1', new LessThanRequested()],
+            'items.*.approved_quantity' => ['nullable', 'numeric', 'min:0', new ProhibitedUnlessHasRole(['admin']), new LessThanRequested()],
             'items.*.received_quantity' => ['nullable', 'numeric', 'min:0', 'default:0', new ProhibitedUnlessHasRole(['admin'], 0)],
         ];
     }

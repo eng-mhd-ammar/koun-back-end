@@ -18,7 +18,7 @@ class DonationRequestResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'status' => $this->status,
+            'status' => $this->status->label(),
             'notes' => $this->notes,
 
             'receiver_user' => new UserResource($this->whenLoaded('receiverUser')),

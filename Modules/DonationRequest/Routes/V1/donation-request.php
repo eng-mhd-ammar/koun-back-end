@@ -10,7 +10,7 @@ Route::middleware(['auth:api'])->group(function (): void {
     Route::get('/', 'index');
     Route::get('/show/{modelId}', 'show');
 
-    Route::middleware([BranchOwner::class])->group(function (): void {
+    Route::middleware(['branch_owner:donation_request'])->group(function (): void {
         Route::post('/create', 'create');
         Route::delete('/delete/{modelId}', 'delete');
         Route::post('/update/{modelId}', 'update');

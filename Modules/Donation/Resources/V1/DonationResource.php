@@ -20,7 +20,7 @@ class DonationResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
-            'status' => $this->status,
+            'status' => $this->status->label(),
             'sent_at' => $this->formatted_sent_at,
             'notes' => $this->notes,
 

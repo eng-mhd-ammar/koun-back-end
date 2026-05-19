@@ -12,10 +12,11 @@ use Illuminate\Database\Eloquent\Model;
 use Modules\Auth\Models\User;
 use Modules\Core\Observers\CascadeSoftDeleteObserver;
 use Modules\DonationRequest\Enums\DonationRequestStatus;
+use Modules\DonationRequest\Observers\DonationRequestObserver;
 use Modules\Institution\Models\Branch;
 
 #[Fillable(['receiver_user_id', 'receiver_branch_id', 'status', 'notes'])]
-#[ObservedBy([CRUDObserver::class/*, CascadeSoftDeleteObserver::class*/])]
+#[ObservedBy([CRUDObserver::class, CascadeSoftDeleteObserver::class, DonationRequestObserver::class])]
 class DonationRequest extends Model
 {
     use HasFactory;
@@ -23,7 +24,7 @@ class DonationRequest extends Model
 
     public string $logChannel = "donation-request";
 
-    // public array $cascadeDeletes = ['donationItems'];
+    public array $cascadeDeletes = ['donationRequestItems'];
 
     protected $casts = [
         'receiver_user_id' => 'string',
