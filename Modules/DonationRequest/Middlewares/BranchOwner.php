@@ -18,25 +18,130 @@ class BranchOwner
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next, string $scope)
     {
-        $user = auth()->user();
-        if($user->is_admin) {
+        $user = Auth::guard('api')->user();
+
+        if (!$user) {
+            return (new UtilitiesResponse())->error(
+                message: 'Unauthenticated.'
+            );
+        }
+
+        if ($user->is_admin) {
             return $next($request);
         }
 
-        $donationRequestId = $request->input('donation_request_id');
-        $donationRequest = null;
+        $allowed = match ($scope) {
+            'donation_request' => $this->checkDonationRequest($request, $user),
+            'donation_request_item' => $this->checkDonationRequestItem($request, $user),
+            default => false,
+        };
 
-        if ($donationRequestId)
-            $donationRequest = DonationRequest::findOrFail($donationRequestId);
-        else
-            $donationRequest = DonationRequestItem::query()->findOrFail($request->route('modelId'))->donationRequest;
-
-        if(!$donationRequest->receiverBranch->isEmployee($user)) {
-            return (new UtilitiesResponse)->error('You are not authorized to perform this action.', UtilitiesResponse::HTTP_FORBIDDEN);
+        if ($allowed) {
+            return $next($request);
         }
 
-        return $next($request);
+        return (new UtilitiesResponse())->error(
+            message: "You don't have permission to access this resource.",
+            code: UtilitiesResponse::HTTP_FORBIDDEN
+        );
+    }
+
+    // ========================= branch_owner:donation_request
+    private function checkDonationRequest(Request $request, $user): bool
+    {
+        $donationRequest = null;
+
+        $receiverBranchId = $request->input('receiver_branch_id');
+
+        // =========================
+        // From receiver branch id
+        // =========================
+        if ($receiverBranchId) {
+
+            $receiverBranch = Branch::find($receiverBranchId);
+
+            if (!$receiverBranch) {
+                return false;
+            }
+
+            return $receiverBranch->isEmployee($user);
+        }
+
+        // =========================
+        // From donation request
+        // =========================
+        $donationRequestId = $request->route('modelId');
+
+        if ($donationRequestId) {
+            $donationRequest = DonationRequest::find($donationRequestId);
+        }
+
+        if (!$donationRequest) {
+            return false;
+        }
+
+        $branch = $donationRequest->receiverBranch;
+
+        // =========================
+        // Personal request
+        // =========================
+        if (!$branch) {
+            return $donationRequest->receiver_user_id === $user->id;
+        }
+
+        return $branch->isEmployee($user)
+            || $donationRequest->receiver_user_id === $user->id;
+    }
+
+    // ========================= branch_owner:donation_request_item
+    private function checkDonationRequestItem(Request $request, $user): bool
+    {
+        $donationRequest = null;
+
+        $donationRequestId = $request->input('donation_request_id');
+
+        // =========================
+        // Direct donation request
+        // =========================
+        if ($donationRequestId) {
+            $donationRequest = DonationRequest::find($donationRequestId);
+        }
+
+        // =========================
+        // From item
+        // =========================
+        if (!$donationRequest) {
+
+            $itemId = $request->route('modelId');
+
+            if ($itemId) {
+
+                $item = DonationRequestItem::find($itemId);
+
+                if (!$item) {
+                    return false;
+                }
+
+                $donationRequest = $item->donationRequest;
+            }
+        }
+
+        // =========================
+        // Validation
+        // =========================
+        if (!$donationRequest) {
+            return false;
+        }
+
+        $branch = $donationRequest->receiverBranch;
+
+        if (!$branch) {
+            return $donationRequest->receiver_user_id === $user->id;
+        }
+
+        return $branch->isEmployee($user)
+            || $donationRequest->receiver_user_id === $user->id;
     }
 }

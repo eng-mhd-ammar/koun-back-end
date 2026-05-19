@@ -13,6 +13,8 @@ class DonationRequestDTO extends BaseDTO
         public ?string $receiver_branch_id,
         public ?string $status,
         public ?string $notes,
+
+        public ?array $items = null,
     ) {
     }
 
@@ -23,6 +25,8 @@ class DonationRequestDTO extends BaseDTO
             receiver_branch_id: $request->validated('receiver_branch_id'),
             status: $request->validated('status'),
             notes: $request->validated('notes'),
+            
+            items: self::prepareRequestArray($request->validated('items')),
         );
     }
 }
