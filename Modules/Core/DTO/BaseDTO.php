@@ -135,15 +135,15 @@ class BaseDTO
         if (!is_array($data)) {
             return null;
         }
-    
+
         if (empty($data)) {
             return [];
         }
-    
+
         if (in_array(-1, $data, true)) {
             return [];
         }
-    
+
         return $data;
     }
 
@@ -152,6 +152,6 @@ class BaseDTO
         if (is_null($date)) {
             return null;
         }
-        return \Carbon\Carbon::parse($date)->format('Y-m-d H:i');
+        return \Carbon\Carbon::parse($date);
     }
 }
