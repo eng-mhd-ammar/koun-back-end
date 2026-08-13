@@ -46,7 +46,7 @@ class EnsureAdminAccess
         $branch = Branch::findOrFail($request->route('modelId'));
 
         return
-            $branch->institution?->owner_id === $userId
+            $branch->institution?->owner_id == $userId
 
             || $branch->members()
                 ->where('user_id', $userId)
@@ -64,10 +64,11 @@ class EnsureAdminAccess
     private function checkInstitution(Request $request, int $userId): bool
     {
         $modelId = $request->input('institution_id') ?? $request->route('modelId');
+
         $institution = Institution::findOrFail($modelId);
 
         return
-            $institution->owner_id === $userId
+            $institution->owner_id == $userId
 
             || $institution->members()
                 ->where('user_id', $userId)
@@ -85,7 +86,7 @@ class EnsureAdminAccess
         $institution = $branch->institution;
 
         return
-            $institution?->owner_id === $userId
+            $institution?->owner_id == $userId
 
             || $institution?->members()
                 ->where('user_id', $userId)
