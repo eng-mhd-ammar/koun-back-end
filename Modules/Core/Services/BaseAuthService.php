@@ -24,7 +24,7 @@ class BaseAuthService
 
     public function login(BaseDTO $DTO): array
     {
-        $model = $this->model::whereAny($this->columns, $DTO->loginField)->firstOr(fn () => $this->throwInvalidCredentials());
+        $model = $this->model::with('roles')->whereAny($this->columns, $DTO->loginField)->firstOr(fn () => $this->throwInvalidCredentials());
         if ($this->checkActivity) {
             $model->is_active === true ?: $this->throwActivationException();
         }
