@@ -23,6 +23,8 @@ class CreateUserRequest extends FormRequest
             'email' => ['required', 'email', new UniqueNotDeleted(User::class, 'email')],
             'password' => ['required', 'string', 'min:8', 'max:20'],
             'gender' => ['integer', new EnumRule(Gender::class), 'default:1'],
+
+            'roles' => ['array',  'exists:roles,id', 'default:2'],
         ];
     }
 }

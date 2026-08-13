@@ -19,6 +19,7 @@ class UserDTO extends BaseDTO
         public ?string $password,
         public ?Carbon $birthday,
         public ?bool $gender,
+        public array $roles = [],
     ) {
     }
 
@@ -34,6 +35,8 @@ class UserDTO extends BaseDTO
             password: $request->validated('password'),
             birthday: self::prepareDateTime($request->validated('birthday')),
             gender: $request->validated('gender'),
+            roles: $request->validated('roles'),
+
         );
     }
 }

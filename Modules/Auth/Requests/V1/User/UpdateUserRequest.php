@@ -23,6 +23,8 @@ class UpdateUserRequest extends FormRequest
             'email' => ['email', new UniqueNotDeleted(User::class, 'email', $this->route('modelId'))],
             'password' => ['string', 'min:8', 'max:20'],
             'gender' => ['integer', new EnumRule(Gender::class), 'default:1'],
+
+            'roles' => ['array',  'exists:roles,id', 'default:2'],
         ];
     }
 }
