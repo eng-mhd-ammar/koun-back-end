@@ -19,7 +19,7 @@ class UserDTO extends BaseDTO
         public ?string $password,
         public ?Carbon $birthday,
         public ?bool $gender,
-        public array $roles = [],
+        public ?array $roles,
     ) {
     }
 

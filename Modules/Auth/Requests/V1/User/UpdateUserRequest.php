@@ -24,7 +24,8 @@ class UpdateUserRequest extends FormRequest
             'password' => ['string', 'min:8', 'max:20'],
             'gender' => ['integer', new EnumRule(Gender::class), 'default:1'],
 
-            'roles' => ['array',  'exists:roles,id', 'default:2'],
+            'roles' => ['array', 'nullable'],
+            'roles.*' => ['integer', 'exists:roles,id']
         ];
     }
 }
