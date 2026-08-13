@@ -31,7 +31,7 @@ class ProfileResource extends JsonResource
             'birthday' => $this->formatted_birthday,
             'gender' => $this->gender,
 
-            'roles' => RoleResource::collection($this->whenLoaded('roles')),
+            'roles' => $this->getRoleNames(),
             'owned_institutions' => InstitutionResource::collection($this->whenLoaded('ownedInstitutions')),
             'member_institutions' => InstitutionResource::collection($this->whenLoaded('memberInstitutions')),
             'user_branches' => UserBranchResource::collection($this->whenLoaded('userBranches')),

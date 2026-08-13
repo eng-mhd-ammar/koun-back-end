@@ -24,7 +24,7 @@ class BaseAuthService
 
     public function login(BaseDTO $DTO): array
     {
-        $model = $this->model::with('roles')->whereAny($this->columns, $DTO->loginField)->firstOr(fn () => $this->throwInvalidCredentials());
+        $model = $this->model::whereAny($this->columns, $DTO->loginField)->firstOr(fn () => $this->throwInvalidCredentials());
         if ($this->checkActivity) {
             $model->is_active === true ?: $this->throwActivationException();
         }
@@ -46,11 +46,13 @@ class BaseAuthService
         $data['profile'] = UserResource::make($model);
 
         return $data;
-    }
+    }  // eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL3YxL2F1dGgvbG9naW4iLCJpYXQiOjE3ODY2MzUwMDAsImV4cCI6MTc4NjY0MjIwMCwibmJmIjoxNzg2NjM1MDAwLCJqdGkiOiJHb0pFbDM3SzJOd3pNOWdDIiwic3ViIjoiMSIsInBydiI6ImYxZDM0YWJkNDI0NzM1MzgyMTIzNmI0ODE4OTcyYTg1Mjg0MzgzYjciLCJ1dHQiOiJSRUZSRVNIIiwiZ3VhcmQiOiJhcGkiLCJ0ZW5hbnQiOm51bGx9.BdggQmU1XqUh6RCikA2comwMRByJGc2UlUAnBYiGhyo
 
     public function register(BaseDTO $DTO)
     {
-        $model = $this->model::with('roles')->query()->create($DTO->toArray());
+        $model = $this->model::query()->create($DTO->toArray());
+
+        $model->assignRole(['user']);
 
         $data = UserResource::make($model);
 
