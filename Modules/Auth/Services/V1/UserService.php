@@ -20,11 +20,12 @@ class UserService extends BaseService implements UserServiceInterface
     {
         $model = parent::create($DTO);
 
-        if($DTO->roles) {
+        if (isset($DTO->roles) && !empty($DTO->roles)) {
             $model->roles()->sync($DTO->roles);
         } else {
             $model->roles()->sync([2]);
         }
+
         return $model;
     }
 
@@ -33,7 +34,7 @@ class UserService extends BaseService implements UserServiceInterface
     {
         $model = parent::update($modelId, $DTO);
 
-        if($DTO->roles) {
+        if (isset($DTO->roles)) {
             $model->roles()->sync($DTO->roles);
         }
 
