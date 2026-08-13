@@ -50,7 +50,7 @@ class BaseAuthService
 
     public function register(BaseDTO $DTO)
     {
-        $model = $this->model::query()->create($DTO->toArray());
+        $model = $this->model::with('roles')->query()->create($DTO->toArray());
 
         $data = UserResource::make($model);
 
