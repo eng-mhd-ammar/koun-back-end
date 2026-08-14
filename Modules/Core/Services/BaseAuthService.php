@@ -43,10 +43,6 @@ class BaseAuthService
             ->first();
 
         if (!$verificationCode) {
-            $this->sendCode(
-                new CodeDTO($DTO->loginField)
-            );
-
             $this->throwUnverifiedAccount();
         }
 
