@@ -10,8 +10,9 @@ Route::middleware(['auth:api'])->group(function (): void {
     Route::get('/', 'index');
     Route::get('/show/{modelId}', 'show');
 
+    Route::post('/create', 'create');
+    
     Route::middleware(['branch_owner:donation_request'])->group(function (): void {
-        Route::post('/create', 'create');
         Route::delete('/delete/{modelId}', 'delete');
         Route::post('/update/{modelId}', 'update');
     });
