@@ -51,9 +51,9 @@ class User extends Authenticatable implements JWTSubject
         'gender' => Gender::class,
         'username' => 'string',
         'phone' => 'string',
-        'phone_verified_at' => 'datetime',
+        // 'phone_verified_at' => 'datetime',
         'email' => 'string',
-        'email_verified_at' => 'datetime',
+        // 'email_verified_at' => 'datetime',
     ];
 
     protected $hidden = [

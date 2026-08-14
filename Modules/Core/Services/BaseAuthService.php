@@ -25,28 +25,41 @@ class BaseAuthService
     public function login(BaseDTO $DTO): array
     {
         $model = $this->model::whereAny($this->columns, $DTO->loginField)->firstOr(fn () => $this->throwInvalidCredentials());
+
         if ($this->checkActivity) {
             $model->is_active === true ?: $this->throwActivationException();
-        }
-
-        if ($DTO->loginField === $model->phone && $model->phone_verified_at === null) {
-            $this->throwUnverifiedPhoneAccount();
-        }
-
-        if ($DTO->loginField === $model->email && $model->email_verified_at === null) {
-            $this->throwUnverifiedMailAccount();
         }
 
         if (!Hash::check($DTO->password, $model->password)) {
             $this->throwInvalidCredentials();
         }
 
-        $data['tokens'] = JWTToken::tokens($model->id, $this->guard, $model->is_admin);
+        $verificationCode = VerificationCode::query()
+            ->where('target', $DTO->loginField)
+            ->where('user_id', $model->id)
+            ->whereNotNull('verified_at')
+            // ->where('expired_at', '>', now())
+            ->latest('created_at')
+            ->first();
+
+        if (!$verificationCode) {
+            $this->sendCode(
+                new CodeDTO($DTO->loginField)
+            );
+
+            $this->throwUnverifiedAccount();
+        }
+
+        $data['tokens'] = JWTToken::tokens(
+            $model->id,
+            $this->guard,
+            $model->is_admin
+        );
 
         $data['profile'] = UserResource::make($model);
 
         return $data;
-    }  // eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL3YxL2F1dGgvbG9naW4iLCJpYXQiOjE3ODY2MzUwMDAsImV4cCI6MTc4NjY0MjIwMCwibmJmIjoxNzg2NjM1MDAwLCJqdGkiOiJHb0pFbDM3SzJOd3pNOWdDIiwic3ViIjoiMSIsInBydiI6ImYxZDM0YWJkNDI0NzM1MzgyMTIzNmI0ODE4OTcyYTg1Mjg0MzgzYjciLCJ1dHQiOiJSRUZSRVNIIiwiZ3VhcmQiOiJhcGkiLCJ0ZW5hbnQiOm51bGx9.BdggQmU1XqUh6RCikA2comwMRByJGc2UlUAnBYiGhyo
+    }
 
     public function register(BaseDTO $DTO)
     {
@@ -129,7 +142,7 @@ class BaseAuthService
             $this->throwOtpTimeout();
         }
 
-        $model->update(['email_verified_at' => now(), 'phone_verified_at' => now()]);
+        $model->update(['verified_at' => now()]);
 
         $data['tokens'] = JWTToken::tokens($model->user->id, $this->guard, $model->is_admin);
 
