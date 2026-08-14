@@ -2,7 +2,7 @@
 
 namespace Modules\DonationRequest\Requests\V1\Delivery;
 
-use App\Models\User;
+use Modules\Auth\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Modules\Core\Rules\NotSoftDeleted;
 use Modules\Core\Rules\EnumRule;

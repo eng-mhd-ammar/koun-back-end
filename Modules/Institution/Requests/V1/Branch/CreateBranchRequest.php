@@ -2,7 +2,7 @@
 
 namespace Modules\Institution\Requests\V1\Branch;
 
-use App\Models\User;
+use Modules\Auth\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Modules\Address\Models\State;
 use Modules\Core\Rules\NotSoftDeleted;
