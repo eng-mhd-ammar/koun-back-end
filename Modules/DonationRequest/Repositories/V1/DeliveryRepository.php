@@ -16,9 +16,10 @@ class DeliveryRepository extends BaseRepository implements DeliveryRepositoryInt
     {
         return [
             // AllowedFilter::exact('delivery', 'id'),
-            AllowedFilter::exact('delivery_id', 'delivery_id'),
+            AllowedFilter::exact('delivery', 'delivery_id'),
             AllowedFilter::exact('receiver', 'receiver_id'),
             AllowedFilter::exact('donation_request', 'donation_request_id'),
+            AllowedFilter::exact('status'),
         ];
     }
 
