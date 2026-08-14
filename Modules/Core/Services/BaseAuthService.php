@@ -129,7 +129,7 @@ class BaseAuthService
             $this->throwOtpTimeout();
         }
 
-        $model->update(['verified_at' => now()]);
+        $model->update(['email_verified_at' => now(), 'phone_verified_at' => now()]);
 
         $data['tokens'] = JWTToken::tokens($model->user->id, $this->guard, $model->is_admin);
 
