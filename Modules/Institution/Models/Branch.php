@@ -19,7 +19,7 @@ use Modules\Donation\Models\Donation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Modules\Address\Models\Address;
-use Modules\Donation\Models\DonationRequest;
+use Modules\DonationRequest\Models\DonationRequest;
 
 #[Fillable(['name', 'description', 'institution_id', 'phone', 'email', 'is_main_branch'])]
 #[ObservedBy([CascadeSoftDeleteObserver::class, CRUDObserver::class])]

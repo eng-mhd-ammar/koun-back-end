@@ -17,7 +17,7 @@ use Modules\Core\Observers\CascadeSoftDeleteObserver;
 use Modules\Core\Observers\SyncFilesObserver;
 use Modules\Core\Observers\CRUDObserver;
 use Modules\Donation\Models\Donation;
-use Modules\Donation\Models\DonationRequest;
+use Modules\DonationRequest\Models\DonationRequest;
 use Modules\Institution\Models\Institution;
 use Modules\Institution\Models\UserBranch;
 use Spatie\Permission\Traits\HasPermissions;
