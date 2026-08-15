@@ -57,4 +57,9 @@ class DonationController extends BaseController
         $this->modelService->restore($modelId);
         return (new Response())->success(message: "Donation restored successfully.");
     }
+
+    public function statistics() {
+        $data = $this->modelService->statistics();
+        return (new Response($data))->success(message: "Statistics retrieved successfully.");
+    }
 }

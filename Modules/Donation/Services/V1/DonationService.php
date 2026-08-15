@@ -7,7 +7,11 @@ use Modules\Core\DTO\BaseDTO;
 use Modules\Donation\Interfaces\V1\Donation\DonationRepositoryInterface;
 use Modules\Donation\Interfaces\V1\Donation\DonationServiceInterface;
 use Modules\Core\Services\BaseService;
+use Modules\Donation\Enums\DonationStatus;
+use Modules\Donation\Models\Donation;
 use Modules\Donation\Models\DonationItem;
+use Modules\DonationRequest\Enums\DeliveryStatus;
+use Modules\DonationRequest\Models\DonationRequest;
 use Override;
 
 class DonationService extends BaseService implements DonationServiceInterface
@@ -101,5 +105,16 @@ class DonationService extends BaseService implements DonationServiceInterface
         });
 
         return $donation;
+    }
+
+    public function statistics() {
+        $data['total_donations'] = Donation::query()->count();
+        $data['active_institutions'] = Donation::query()->where('status', DonationStatus::APPROVED->value)->count();
+        $data['pending_donation_requests'] = DonationRequest::query()->where('status', DonationStatus::PENDING->value)->count();
+        $data['delivered_donations'] = DonationRequest::query()->whereHas('deliveries', function ($query) {
+            $query->where('status', DeliveryStatus::DELIVERED->value);
+        })->count();
+
+        return $data;
     }
 }

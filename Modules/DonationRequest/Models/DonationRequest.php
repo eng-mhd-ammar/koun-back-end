@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Core\Observers\CRUDObserver;
 use Illuminate\Database\Eloquent\Model;
@@ -72,5 +73,9 @@ class DonationRequest extends Model
     public function receiverBranch()
     {
         return $this->belongsTo(Branch::class, 'receiver_branch_id', 'id');
+    }
+
+    public function deliveries(): HasMany {
+        return $this->hasMany(Delivery::class, 'donation_request_id', 'id');
     }
 }
