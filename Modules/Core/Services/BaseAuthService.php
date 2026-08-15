@@ -26,28 +26,26 @@ class BaseAuthService
     {
         $model = $this->model::whereAny($this->columns, $DTO->loginField)->firstOr(fn () => $this->throwInvalidCredentials());
 
-        if ($this->checkActivity) {
-            $model->is_active === true ?: $this->throwActivationException();
-        }
+        // if ($this->checkActivity) {
+        //     $model->is_active === true ?: $this->throwActivationException();
+        // }
 
         if (!Hash::check($DTO->password, $model->password)) {
             $this->throwInvalidCredentials();
         }
 
-        $verificationCode = VerificationCode::query()
-            ->where('target', $DTO->loginField)
-            ->where('user_id', $model->id)
-            ->whereNotNull('verified_at')
-            // ->where('expired_at', '>', now())
-            ->latest('created_at')
-            ->first();
+        if($model->username != $DTO->loginField) {
+            $verificationCode = VerificationCode::query()
+                ->where('target', $DTO->loginField)
+                ->where('user_id', $model->id)
+                ->whereNotNull('verified_at')
+                // ->where('expired_at', '>', now())
+                ->latest('created_at')
+                ->first();
 
-        if (!$verificationCode) {
-            $this->sendCode(
-                new CodeDTO($DTO->loginField)
-            );
-
-            $this->throwUnverifiedAccount();
+            if (!$verificationCode) {
+                $this->throwUnverifiedAccount();
+            }
         }
 
         $data['tokens'] = JWTToken::tokens(

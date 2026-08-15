@@ -26,6 +26,22 @@ class AdminSeeder extends Seeder
             'gender' => 1,
         ]);
 
+        $user->verificationCodes()->create([
+            'type' => 1,
+            'target' => $user->email,
+            'code' => '123456',
+            'expired_at' => now()->addMinutes(10),
+            'verified_at' => now(),
+        ]);
+
+        $user->verificationCodes()->create([
+            'type' => 2,
+            'target' => $user->phone,
+            'code' => '123456',
+            'expired_at' => now()->addMinutes(10),
+            'verified_at' => now(),
+        ]);
+
         $user->assignRole(['admin', 'user', 'delivery']);
     }
 }

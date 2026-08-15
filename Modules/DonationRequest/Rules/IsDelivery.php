@@ -5,8 +5,9 @@ namespace Modules\DonationRequest\Rules;
 use Modules\Auth\Models\User;
 use Modules\DonationRequest\Enums\DonationRequestStatus;
 use Modules\DonationRequest\Models\DonationRequest;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class IsDelivery
+class IsDelivery implements ValidationRule
 {
     /**
      * Handle an incoming request.

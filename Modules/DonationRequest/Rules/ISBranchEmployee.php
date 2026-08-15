@@ -6,8 +6,9 @@ use Modules\Auth\Models\User;
 use Modules\DonationRequest\Models\Delivery;
 use Modules\DonationRequest\Enums\DonationRequestStatus;
 use Modules\DonationRequest\Models\DonationRequest;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class ISBranchEmployee
+class ISBranchEmployee implements ValidationRule
 {
     /**
      * Handle an incoming request.
@@ -30,13 +31,16 @@ class ISBranchEmployee
             }
         } else {
             $donationRequest = Delivery::query()->findOrFail(request()->route('ModelId'))?->donationRequest;
-
             if (!$donationRequest) {
                 $fail('The selected delivery does not exist.');
             }
         }
 
-        if($donationRequest->receiverBranch->isEmployee($user)) {
+        if($donationRequest->receiverBranch && $donationRequest->receiverBranch->isEmployee($user)) {
+            return;
+        }
+
+        if($donationRequest->receiverBranch == null) {
             return;
         }
 

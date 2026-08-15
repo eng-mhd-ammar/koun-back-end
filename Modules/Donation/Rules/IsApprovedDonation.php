@@ -24,7 +24,7 @@ class IsApprovedDonation implements ValidationRule
         $donation = Donation::findOrFail($value);
 
         if (!$donation->status != DonationStatus::APPROVED) {
-            $fail('The selected institution is not a charity.');
+            $fail('The Donation Does Not Approved.');
         }
     }
 }
