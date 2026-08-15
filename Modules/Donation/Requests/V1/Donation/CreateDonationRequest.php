@@ -19,7 +19,7 @@ class CreateDonationRequest extends FormRequest
     {
         return [
             'sender_branch_id' => ['nullable', 'string', new NotSoftDeleted(Branch::class)],
-            'sender_user_id' => ['required', 'string', new NotSoftDeleted(User::class), new ProhibitedUnlessHasRole(['admin'], auth()->id()), new IsDonor()],
+            'sender_user_id' => ['string', new NotSoftDeleted(User::class), new ProhibitedUnlessHasRole(['admin'], auth()->id()), new IsDonor()],
 
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:255'],
