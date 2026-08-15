@@ -24,7 +24,7 @@ class DonationItemResource extends JsonResource
             'notes' => $this->notes,
 
             'unit' => new UnitResource($this->whenLoaded('unit')),
-            'donation-type' => new DonationTypeResource($this->whenLoaded('donationType')),
+            'donation_type' => new DonationTypeResource($this->whenLoaded('donationType')),
             'donation' => new DonationResource($this->whenLoaded('donation')),
             'donation_request_items' => DonationRequestItemResource::collection($this->whenLoaded('donationRequestItems')),
         ];
