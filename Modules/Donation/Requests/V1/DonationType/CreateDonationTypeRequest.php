@@ -11,8 +11,12 @@ class CreateDonationTypeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required_without:types', 'string', 'max:255'],
             'parent_id' => ['nullable', 'string', new NotSoftDeleted(DonationType::class)],
+
+            'types' => ['required_without:name', 'array'],
+            'types.*.name' => ['required', 'string', 'max:255'],
+            'types.*.parent_id' => ['nullable', 'string', new NotSoftDeleted(DonationType::class)],
         ];
     }
 }

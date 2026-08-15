@@ -11,6 +11,7 @@ class DonationTypeDTO extends BaseDTO
     public function __construct(
         public ?string $name,
         public ?string $parent_id,
+        public ?array $types,
     ) {
     }
 
@@ -19,6 +20,7 @@ class DonationTypeDTO extends BaseDTO
         return new self(
             name: $request->validated('name'),
             parent_id: $request->validated('parent_id'),
+            types: $request->validated('types'),
         );
     }
 }

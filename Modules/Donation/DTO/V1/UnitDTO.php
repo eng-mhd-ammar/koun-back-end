@@ -11,6 +11,7 @@ class UnitDTO extends BaseDTO
     public function __construct(
         public ?string $name,
         public ?string $description,
+        public ?array $units,
     ) {
     }
 
@@ -19,6 +20,7 @@ class UnitDTO extends BaseDTO
         return new self(
             name: $request->validated('name'),
             description: $request->validated('description'),
+            units: $request->validated('units'),
         );
     }
 }
