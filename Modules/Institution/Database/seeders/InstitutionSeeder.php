@@ -47,7 +47,7 @@ class InstitutionSeeder extends Seeder
                     'name' => $faker->company(),
                     'description' => $faker->optional()->sentence(),
                     'owner_id' => $owner->id,
-                    'phone' => '09' . $faker->numerify('########'),
+                    'phone' => '+9639' . $faker->numerify('########'),
                     'email' => $faker->unique()->safeEmail(),
                     'type' => $faker->randomElement([
                         InstitutionType::DONOR->value,
@@ -92,7 +92,7 @@ class InstitutionSeeder extends Seeder
                         'name' => "فرع {$j} - {$institution->name}",
                         'description' => $faker->optional()->sentence(),
                         'institution_id' => $institution->id,
-                        'phone' => '09' . $faker->numerify('########'),
+                        'phone' => '+9639' . $faker->numerify('########'),
                         'email' => $faker->unique()->safeEmail(),
                         'is_main_branch' => $j === 1,
                     ]);
