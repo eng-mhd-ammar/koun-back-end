@@ -34,10 +34,17 @@ class DonationSeeder extends Seeder
         $branches = DB::table('branches')->get();
 
         $units = Unit::query()->get();
+
         $donationTypes = DonationType::query()->get();
 
         // Users who have delivery role
         $deliveryUsers = User::role('delivery')->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Required Data
+        |--------------------------------------------------------------------------
+        */
 
         if ($branches->isEmpty()) {
             $this->command->error('No branches found.');
@@ -59,12 +66,23 @@ class DonationSeeder extends Seeder
             return;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Date Range
+        |--------------------------------------------------------------------------
+        */
+
+        $threeMonthsAgo = now()->subMonths(3);
+        $now = now();
+
         DB::transaction(function () use (
             $faker,
             $branches,
             $units,
             $donationTypes,
-            $deliveryUsers
+            $deliveryUsers,
+            $threeMonthsAgo,
+            $now
         ) {
 
             /*
@@ -109,14 +127,49 @@ class DonationSeeder extends Seeder
 
                 $status = $faker->randomElement([
                     DonationStatus::PENDING->value,
+
                     DonationStatus::APPROVED->value,
                     DonationStatus::APPROVED->value,
                     DonationStatus::APPROVED->value,
+
                     DonationStatus::REJECTED->value,
                 ]);
 
+                /*
+                |--------------------------------------------------------------------------
+                | Donation Created At
+                |--------------------------------------------------------------------------
+                */
+
+                $createdAt = $faker->dateTimeBetween(
+                    $threeMonthsAgo,
+                    $now
+                );
+
+                /*
+                |--------------------------------------------------------------------------
+                | Donation Sent At
+                |--------------------------------------------------------------------------
+                */
+
+                $sentAt = null;
+
+                if ($status !== DonationStatus::PENDING->value) {
+                    $sentAt = $faker->dateTimeBetween(
+                        $createdAt,
+                        $now
+                    );
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | Create Donation
+                |--------------------------------------------------------------------------
+                */
+
                 $donation = Donation::create([
                     'sender_branch_id' => $senderBranch->id,
+
                     'sender_user_id' => $senderUserId,
 
                     'title' => $faker->randomElement([
@@ -133,11 +186,13 @@ class DonationSeeder extends Seeder
 
                     'status' => $status,
 
-                    'sent_at' => $status !== DonationStatus::PENDING->value
-                        ? $faker->dateTimeBetween('-6 months', 'now')
-                        : null,
+                    'sent_at' => $sentAt,
 
                     'notes' => $faker->optional()->sentence(),
+
+                    'created_at' => $createdAt,
+
+                    'updated_at' => $createdAt,
                 ]);
 
                 /*
@@ -150,36 +205,57 @@ class DonationSeeder extends Seeder
 
                 for ($j = 0; $j < $itemsCount; $j++) {
 
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Quantity
+                    |--------------------------------------------------------------------------
+                    */
+
                     $quantity = $faker->numberBetween(5, 100);
 
                     /*
-                    | Pending donation:
-                    | Everything is still available.
-                    |
-                    | Approved donation:
-                    | Some quantity may have already been distributed.
-                    |
-                    | Rejected donation:
-                    | No remaining quantity.
+                    |--------------------------------------------------------------------------
+                    | Remaining Quantity
+                    |--------------------------------------------------------------------------
                     */
 
                     if ($status === DonationStatus::REJECTED->value) {
+
                         $remainingQuantity = 0;
+
                     } elseif ($status === DonationStatus::PENDING->value) {
+
                         $remainingQuantity = $quantity;
+
                     } else {
+
                         $remainingQuantity = $faker->numberBetween(
                             0,
                             $quantity
                         );
                     }
 
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Type & Unit
+                    |--------------------------------------------------------------------------
+                    */
+
                     $type = $donationTypes->random();
+
                     $unit = $units->random();
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Create Donation Item
+                    |--------------------------------------------------------------------------
+                    */
 
                     $item = DonationItem::create([
                         'donation_id' => $donation->id,
+
                         'unit_id' => $unit->id,
+
                         'donation_type_id' => $type->id,
 
                         'name' => $type->name,
@@ -191,6 +267,10 @@ class DonationSeeder extends Seeder
                         'remaining_quantity' => $remainingQuantity,
 
                         'notes' => $faker->optional()->sentence(),
+
+                        'created_at' => $createdAt,
+
+                        'updated_at' => $createdAt,
                     ]);
 
                     $donationItems->push($item);
@@ -199,17 +279,26 @@ class DonationSeeder extends Seeder
 
             /*
             |--------------------------------------------------------------------------
-            | Create Donation Requests
+            | Available Donation Items
             |--------------------------------------------------------------------------
             */
 
             $availableItems = $donationItems
-                ->filter(fn ($item) => $item->remaining_quantity > 0)
+                ->filter(
+                    fn ($item) =>
+                        $item->remaining_quantity > 0
+                )
                 ->values();
 
             if ($availableItems->isEmpty()) {
                 return;
             }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Create Donation Requests
+            |--------------------------------------------------------------------------
+            */
 
             for ($i = 1; $i <= 50; $i++) {
 
@@ -245,18 +334,74 @@ class DonationSeeder extends Seeder
 
                 $status = $faker->randomElement([
                     DonationRequestStatus::PENDING->value,
+
                     DonationRequestStatus::APPROVED->value,
                     DonationRequestStatus::APPROVED->value,
+
                     DonationRequestStatus::REJECTED->value,
                 ]);
 
+                /*
+                |--------------------------------------------------------------------------
+                | Select Donation Items
+                |--------------------------------------------------------------------------
+                */
+
+                $requestItemsCount = $faker->numberBetween(1, 3);
+
+                $selectedItems = $availableItems->random(
+                    min(
+                        $requestItemsCount,
+                        $availableItems->count()
+                    )
+                );
+
+                /*
+                |--------------------------------------------------------------------------
+                | random() returns model when count = 1
+                |--------------------------------------------------------------------------
+                */
+
+                $selectedItems = collect($selectedItems);
+
+                /*
+                |--------------------------------------------------------------------------
+                | Request Created At
+                |--------------------------------------------------------------------------
+                |
+                | Make sure the request is created after the selected
+                | donation item was created.
+                |
+                */
+
+                $oldestItemDate = $selectedItems
+                    ->min(
+                        fn ($item) => $item->created_at
+                    );
+
+                $requestCreatedAt = $faker->dateTimeBetween(
+                    $oldestItemDate,
+                    $now
+                );
+
+                /*
+                |--------------------------------------------------------------------------
+                | Create Donation Request
+                |--------------------------------------------------------------------------
+                */
+
                 $request = DonationRequest::create([
                     'receiver_user_id' => $receiverUserId,
+
                     'receiver_branch_id' => $receiverBranch->id,
 
                     'status' => $status,
 
                     'notes' => $faker->optional()->sentence(),
+
+                    'created_at' => $requestCreatedAt,
+
+                    'updated_at' => $requestCreatedAt,
                 ]);
 
                 /*
@@ -265,25 +410,24 @@ class DonationSeeder extends Seeder
                 |--------------------------------------------------------------------------
                 */
 
-                $requestItemsCount = $faker->numberBetween(1, 3);
-
-                $selectedItems = $availableItems
-                    ->random(
-                        min(
-                            $requestItemsCount,
-                            $availableItems->count()
-                        )
-                    );
-
-                // random() returns model instead of collection when count = 1
-                $selectedItems = collect($selectedItems);
-
                 foreach ($selectedItems as $donationItem) {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Maximum Requested Quantity
+                    |--------------------------------------------------------------------------
+                    */
 
                     $maxQuantity = max(
                         1,
                         (int) $donationItem->remaining_quantity
                     );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Requested Quantity
+                    |--------------------------------------------------------------------------
+                    */
 
                     $requestedQuantity = $faker->numberBetween(
                         1,
@@ -292,11 +436,14 @@ class DonationSeeder extends Seeder
 
                     /*
                     |--------------------------------------------------------------------------
-                    | Approved Quantity
+                    | Approved / Received Quantity
                     |--------------------------------------------------------------------------
                     */
 
-                    if ($status === DonationRequestStatus::APPROVED->value) {
+                    if (
+                        $status ===
+                        DonationRequestStatus::APPROVED->value
+                    ) {
 
                         $approvedQuantity = $faker->numberBetween(
                             1,
@@ -305,7 +452,10 @@ class DonationSeeder extends Seeder
 
                         $receivedQuantity = 0;
 
-                    } elseif ($status === DonationRequestStatus::REJECTED->value) {
+                    } elseif (
+                        $status ===
+                        DonationRequestStatus::REJECTED->value
+                    ) {
 
                         $approvedQuantity = null;
 
@@ -318,8 +468,15 @@ class DonationSeeder extends Seeder
                         $receivedQuantity = 0;
                     }
 
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Create Request Item
+                    |--------------------------------------------------------------------------
+                    */
+
                     DB::table('donation_request_items')->insert([
                         'donation_request_id' => $request->id,
+
                         'donation_item_id' => $donationItem->id,
 
                         'requested_quantity' => $requestedQuantity,
@@ -328,8 +485,9 @@ class DonationSeeder extends Seeder
 
                         'received_quantity' => $receivedQuantity,
 
-                        'created_at' => now(),
-                        'updated_at' => now(),
+                        'created_at' => $requestCreatedAt,
+
+                        'updated_at' => $requestCreatedAt,
                     ]);
 
                     /*
@@ -339,10 +497,13 @@ class DonationSeeder extends Seeder
                     */
 
                     if (
-                        $status === DonationRequestStatus::APPROVED->value
+                        $status ===
+                        DonationRequestStatus::APPROVED->value
                         && $approvedQuantity > 0
                     ) {
-                        $donationItem->remaining_quantity -= $approvedQuantity;
+
+                        $donationItem->remaining_quantity -=
+                            $approvedQuantity;
 
                         $donationItem->save();
                     }
@@ -354,39 +515,62 @@ class DonationSeeder extends Seeder
                 |--------------------------------------------------------------------------
                 */
 
-                if ($status === DonationRequestStatus::APPROVED->value) {
+                if (
+                    $status ===
+                    DonationRequestStatus::APPROVED->value
+                ) {
 
                     $deliveryStatus = $faker->randomElement([
                         DeliveryStatus::PENDING->value,
+
                         DeliveryStatus::PICKED_UP->value,
+
                         DeliveryStatus::IN_TRANSIT->value,
+
                         DeliveryStatus::DELIVERED->value,
                     ]);
 
                     $pickedAt = null;
+
                     $deliveredAt = null;
 
                     /*
                     |--------------------------------------------------------------------------
-                    | Dates according to status
+                    | Picked At
                     |--------------------------------------------------------------------------
                     */
 
                     if (
-                        $deliveryStatus === DeliveryStatus::PICKED_UP->value ||
-                        $deliveryStatus === DeliveryStatus::IN_TRANSIT->value ||
-                        $deliveryStatus === DeliveryStatus::DELIVERED->value
+                        $deliveryStatus ===
+                        DeliveryStatus::PICKED_UP->value
+
+                        || $deliveryStatus ===
+                        DeliveryStatus::IN_TRANSIT->value
+
+                        || $deliveryStatus ===
+                        DeliveryStatus::DELIVERED->value
                     ) {
+
                         $pickedAt = $faker->dateTimeBetween(
-                            '-30 days',
-                            '-2 days'
+                            $requestCreatedAt,
+                            $now
                         );
                     }
 
-                    if ($deliveryStatus === DeliveryStatus::DELIVERED->value) {
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Delivered At
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        $deliveryStatus ===
+                        DeliveryStatus::DELIVERED->value
+                    ) {
+
                         $deliveredAt = $faker->dateTimeBetween(
                             $pickedAt,
-                            'now'
+                            $now
                         );
                     }
 
@@ -397,6 +581,12 @@ class DonationSeeder extends Seeder
                     */
 
                     $deliveryUser = $deliveryUsers->random();
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Create Delivery
+                    |--------------------------------------------------------------------------
+                    */
 
                     Delivery::create([
                         'donation_request_id' => $request->id,
@@ -410,6 +600,10 @@ class DonationSeeder extends Seeder
                         'picked_at' => $pickedAt,
 
                         'delivered_at' => $deliveredAt,
+
+                        'created_at' => $requestCreatedAt,
+
+                        'updated_at' => $requestCreatedAt,
                     ]);
 
                     /*
@@ -418,14 +612,21 @@ class DonationSeeder extends Seeder
                     |--------------------------------------------------------------------------
                     */
 
-                    if ($deliveryStatus === DeliveryStatus::DELIVERED->value) {
+                    if (
+                        $deliveryStatus ===
+                        DeliveryStatus::DELIVERED->value
+                    ) {
 
                         DB::table('donation_request_items')
-                            ->where('donation_request_id', $request->id)
+                            ->where(
+                                'donation_request_id',
+                                $request->id
+                            )
                             ->update([
                                 'received_quantity' => DB::raw(
                                     'approved_quantity'
                                 ),
+
                                 'updated_at' => now(),
                             ]);
                     }
@@ -433,6 +634,8 @@ class DonationSeeder extends Seeder
             }
         });
 
-        $this->command->info('Donations seeded successfully.');
+        $this->command->info(
+            'Donations seeded successfully.'
+        );
     }
 }
