@@ -20,7 +20,7 @@ class CreateDonationRequestRequest extends FormRequest
     {
         return [
             'receiver_branch_id' => ['nullable', 'string', new NotSoftDeleted(Branch::class), new IsCharity],
-            'receiver_user_id' => ['required', 'string', new NotSoftDeleted(User::class)],
+            'receiver_user_id' => ['string', new NotSoftDeleted(User::class), new ProhibitedUnlessHasRole(['admin'], auth()->id()),],
             'status' => ['nullable', 'numeric', new EnumRule(DonationRequestStatus::class), 'default:' . DonationRequestStatus::PENDING->value, new ProhibitedUnlessHasRole(['admin'], DonationRequestStatus::PENDING->value)],
             'notes' => ['nullable', 'string'],
 
