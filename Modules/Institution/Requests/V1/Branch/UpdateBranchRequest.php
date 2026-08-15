@@ -22,7 +22,7 @@ class UpdateBranchRequest extends FormRequest
             'email' => ['required', 'email'],
             'is_main_branch' => ['boolean'],
 
-            'address.id' => ['string', new NotSoftDeleted(Address::class)],
+            'address.id' => ['required', 'string', new NotSoftDeleted(Address::class)],
             'address.state_id' => ['required', 'string', new NotSoftDeleted(State::class)],
             'address.city' => ['required', 'string', 'max:255'],
             'address.street' => ['required', 'string', 'max:255'],
