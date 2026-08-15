@@ -34,7 +34,21 @@ class BaseAuthService
             $this->throwInvalidCredentials();
         }
 
-        $model->phone != $DTO->loginField && $model->email != $DTO->loginField ?: $this->throwUnverifiedAccount();
+        $verificationCode = VerificationCode::query()
+            ->where('target', $DTO->loginField)
+            ->where('user_id', $model->id)
+            ->whereNotNull('verified_at')
+            // ->where('expired_at', '>', now())
+            ->latest('created_at')
+            ->first();
+
+        if (!$verificationCode) {
+            $this->sendCode(
+                new CodeDTO($DTO->loginField)
+            );
+
+            $this->throwUnverifiedAccount();
+        }
 
         $data['tokens'] = JWTToken::tokens(
             $model->id,
