@@ -6,6 +6,7 @@ use App\Custom\CustomPaginator;
 use Spatie\QueryBuilder\QueryBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
+use Modules\Auth\Models\User;
 use Spatie\QueryBuilder\AllowedFilter;
 
 class BaseRepository
@@ -88,6 +89,11 @@ class BaseRepository
     public function create(array $data): Model
     {
         return $this->model::create($data);
+    }
+
+    public function createMany(array $data): bool
+    {
+        return $this->model::insert($data);
     }
 
     public function update(string $modelId, array $data): Model

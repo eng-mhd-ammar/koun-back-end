@@ -47,7 +47,7 @@ class DonationItem extends Model
         return $this->belongsTo(Donation::class, 'donation_id', 'id');
     }
 
-    public function donationRequestItems(): HasMany {
-        return $this->hasMany(DonationRequestItem::class, 'donation_item_id', 'id');
+    public function donationItems(): HasMany {
+        return $this->hasMany(DonationItem::class, 'donation_item_id', 'id');
     }
 }

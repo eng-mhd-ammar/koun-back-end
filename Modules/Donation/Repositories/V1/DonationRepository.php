@@ -31,6 +31,7 @@ class DonationRepository extends BaseRepository implements DonationRepositoryInt
             AllowedInclude::relationship('sender_user', 'senderUser'),
             AllowedInclude::relationship('sender_branch.institution', 'senderBranch.institution'),
             AllowedInclude::relationship('donation_items.unit', 'donationItems.unit'),
+            AllowedInclude::relationship('donation_items.donation_type', 'donationItems.donationType'),
         ];
     }
 }

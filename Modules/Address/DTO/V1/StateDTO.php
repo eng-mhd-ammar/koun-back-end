@@ -10,6 +10,8 @@ class StateDTO extends BaseDTO
 {
     public function __construct(
         public ?string $name,
+        public ?array $names,
+
     ) {
     }
 
@@ -17,6 +19,7 @@ class StateDTO extends BaseDTO
     {
         return new self(
             name: $request->validated('name'),
+            names: $request->validated('names'),
         );
     }
 }

@@ -9,7 +9,10 @@ class CreateStateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required_without:names', 'string', 'max:255'],
+
+            'names' => ['required_without:name', 'array'],
+            'names.*' => ['string', 'max:255'],
         ];
     }
 }
