@@ -115,6 +115,28 @@ class DonationService extends BaseService implements DonationServiceInterface
             $query->where('status', DeliveryStatus::DELIVERED->value);
         })->count();
 
+        $startDate = now()->subDays(29)->startOfDay();
+
+        $donations = Donation::query()
+            ->where('created_at', '>=', $startDate)
+            ->selectRaw('
+                FLOOR(DATEDIFF(created_at, ?) / 5) as period,
+                COUNT(*) as count
+            ', [$startDate->toDateString()])
+            ->groupBy('period')
+            ->orderBy('period')
+            ->get();
+
+        $data['graph'] = collect(range(0, 5))->map(function ($period) use ($donations, $startDate) {
+            $start = $startDate->copy()->addDays($period * 5);
+            $end = $start->copy()->addDays(4);
+
+            return [
+                'period' => $start->format('d/m') . ' - ' . $end->format('d/m'),
+                'count' => $donations->firstWhere('period', $period)?->count ?? 0,
+            ];
+        });
+
         return $data;
     }
 }
