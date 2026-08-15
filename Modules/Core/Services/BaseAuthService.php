@@ -34,7 +34,7 @@ class BaseAuthService
             $this->throwInvalidCredentials();
         }
 
-        if($model->username != $DTO->loginField) {
+        if(!$model->is_admin && $model->username != $DTO->loginField) {
             $verificationCode = VerificationCode::query()
                 ->where('target', $DTO->loginField)
                 ->where('user_id', $model->id)
