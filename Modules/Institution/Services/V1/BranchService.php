@@ -36,10 +36,12 @@ class BranchService extends BaseService implements BranchServiceInterface
             $model->members()->sync($DTO->users);
         }
 
-        if ($DTO->address['id']) {
-            $model->address()->update($DTO->address);
-        } else {
-            $model->address()->create($DTO->address);
+        if($DTO->address) {
+            if ($DTO->address['id']) {
+                $model->address()->update($DTO->address);
+            } else {
+                $model->address()->create($DTO->address);
+            }
         }
 
         return $model;
