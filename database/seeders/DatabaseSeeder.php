@@ -5,7 +5,12 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Modules\Auth\Database\seeders\AdminSeeder;
+use Modules\Donation\Database\seeders\DonationTypeSeeder;
 use Modules\Auth\Database\seeders\RoleSeeder;
+use Modules\Address\Database\seeders\StateSeeder;
+use Modules\Donation\Database\seeders\DonationSeeder;
+use Modules\Donation\Database\seeders\UnitSeeder;
+use Modules\Institution\Database\seeders\InstitutionSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -26,6 +31,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             AdminSeeder::class,
+
+            StateSeeder::class,
+            UnitSeeder::class,
+            DonationTypeSeeder::class,
+
+            InstitutionSeeder::class,
+            DonationSeeder::class,
         ]);
     }
 }
