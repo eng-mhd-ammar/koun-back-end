@@ -72,7 +72,7 @@ class InstitutionSeeder extends Seeder
                     DB::table('user_institutions')->insert([
                         'institution_id' => $institution->id,
                         'user_id' => $employee->id,
-                        'is_admin' => $employee->id === $owner->id,
+                        'is_admin' => $faker->randomElement([true, false]),
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
@@ -127,7 +127,7 @@ class InstitutionSeeder extends Seeder
                         DB::table('user_branches')->insert([
                             'branch_id' => $branch->id,
                             'user_id' => $employee->id,
-                            'is_admin' => false,
+                            'is_admin' => $faker->randomElement([true, false]),
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
