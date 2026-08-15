@@ -28,7 +28,7 @@ class DonationRequestObserver
 
         DB::transaction(function () use ($donationRequest) {
 
-            $items = $donationRequest->items()->with('donationItem')->get();
+            $items = $donationRequest->donationRequestItems()->with('donationItem')->get();
 
             foreach ($items as $item) {
 

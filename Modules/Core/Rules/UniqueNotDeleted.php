@@ -28,6 +28,8 @@ class UniqueNotDeleted implements ValidationRule
             $query->where('id', '!=', $this->ignoreId);
         }
 
+        // dd($query);
+
         if ($query->exists()) {
             $fail("The {$attribute} has already been taken (active record exists).");
         }
