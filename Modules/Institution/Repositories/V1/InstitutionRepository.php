@@ -27,6 +27,8 @@ class InstitutionRepository extends BaseRepository implements InstitutionReposit
         return [
             AllowedInclude::relationship('owner'),
             AllowedInclude::relationship('branches.address'),
+            AllowedInclude::relationship('branches.donations.donation_items', 'branches.donations.donationItems'),
+            AllowedInclude::relationship('branches.donation_requests.donation_request_items', 'branches.donationsRequests.donationRequestItems'),
             AllowedInclude::relationship('user_institutions', 'userInstitutions'),
             AllowedInclude::relationship('members'),
         ];

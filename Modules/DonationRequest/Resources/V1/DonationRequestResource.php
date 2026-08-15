@@ -23,6 +23,7 @@ class DonationRequestResource extends JsonResource
 
             'receiver_user' => new UserResource($this->whenLoaded('receiverUser')),
             'receiver_branch' => new BranchResource($this->whenLoaded('receiverBranch')),
+            'donation_request_items' => DonationRequestItemResource::collection($this->whenLoaded('donationRequestItems')),
         ];
     }
 }
